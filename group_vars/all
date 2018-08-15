@@ -1,0 +1,126 @@
+---
+# Variables for the CiscoUcs.ucs role used in dCloud
+#
+# This variables file can be used to override default settings or skip a configuration task (by providing an empty list).
+# Default settings are located in the defaults/main.yml files for each lan/san/storage/servers/etc. role.
+#
+ucs_timezone:
+- timezone: America/New_York
+ucs_ntp:
+- objects:
+  - {
+        "module": "ucsmsdk.mometa.comm.CommNtpProvider",
+        "class": "CommNtpProvider",
+        "properties": {
+            "parent_mo_or_dn": "sys/svc-ext/datetime-svc",
+            "name": "10.55.102.5"
+        }
+    }
+ucs_username: ucspe
+ucs_password: ucspe
+ucs_hostname: 10.55.105.206
+ucs_state: present
+# LAN related settings
+ucs_ip_pools:
+# empty list will skip configuration in dCloud's environment
+ucs_port_channels:
+# empty list will skip configuration in dCloud's environment
+ucs_vlans:
+# only using VLAN 10 in dCloud
+- name: UCS_Data_105
+  id: '105'
+ucs_vnic_templates:
+# adjust vNIC templates and LAN connectivity policy for dCloud (single vNIC)
+- name: Cntr-Template
+  fabric: A-B
+  template_type: updating-template
+  mac_pool: MAC-Pool-A
+  network_control_policy: Enable-CDP-LLDP
+  vlans_list:
+  - name: UCS_Data_10
+    native: 'yes'
+ucs_lan_connectivity_policies:
+- name: Cntr-FC-Boot
+  vnic_list:
+  - name: vNIC-Management
+    vnic_template: Cntr-Template
+    adapter_policy: Linux
+
+# SAN related settings (SAN not used in dCloud)
+ucs_wwnn_pools:
+# empty list will skip configuration in dCloud's environment
+ucs_wwpn_pools:
+# empty list will skip configuration in dCloud's environment
+ucs_vsans:
+# empty list will skip configuration in dCloud's environment
+ucs_vhba_templates:
+- name: vHBA-Template-A
+  fabric: A
+  vsan: VSAN-A
+  wwpn_pool: WWPN-Pool-A
+- name: vHBA-Template-B
+  fabric: B
+  vsan: VSAN-B
+  wwpn_pool: WWPN-Pool-B
+
+ucs_san_connectivity_policies:
+# empty list will skip configuration in dCloud's environment
+
+# Storage settings (no used in dCloud)
+ucs_storage_profiles:
+# empty list will skip configuration in dCloud's environment
+ucs_disk_group_policies:
+# empty list will skip configuration in dCloud's environment
+ucs_manual_disk_groups:
+# empty list will skip configuration in dCloud's environment
+ucs_local_luns:
+# empty list will skip configuration in dCloud's environment
+
+# Servers settings
+ucs_boot_policies:
+# empty list will skip configuration in dCloud's environment
+ucs_host_firmware_packages:
+# empty list will skip configuration in dCloud's environment
+ucs_service_profile_templates:
+# use dCloud's existing boot policy and server pool
+- name: DEE-Ctrl
+  template_type: updating-template
+  uuid_pool: UUID-Pool
+  lan_connectivity_policy: Cntr-FC-Boot
+  boot_policy: Razor_Boot
+  maintenance_policy: User_Ack_Policy
+  server_pool: General-Server_Pool
+  bios_policy: Docker
+- name: DEE-DTR
+  template_type: updating-template
+  uuid_pool: UUID-Pool
+  lan_connectivity_policy: Cntr-FC-Boot
+  boot_policy: Razor_Boot
+  maintenance_policy: User_Ack_Policy
+  server_pool: General-Server_Pool
+  bios_policy: Docker
+- name: DEE-Wrk
+  template_type: updating-template
+  uuid_pool: UUID-Pool
+  lan_connectivity_policy: Cntr-FC-Boot
+  boot_policy: Razor_Boot
+  maintenance_policy: User_Ack_Policy
+  server_pool: General-Server_Pool
+  bios_policy: Docker
+ucs_chassis_profile_associations:
+- chassis_profile_name: Swift-Chassis-1
+  chassis_dn: sys/chassis-1
+- chassis_profile_name: Swift-Chassis-2
+  chassis_dn: sys/chassis-2
+- chassis_profile_name: Swift-Chassis-3
+  chassis_dn: sys/chassis-3
+- chassis_profile_name: Swift-Chassis-4
+  chassis_dn: sys/chassis-4
+- chassis_profile_name: Swift-Chassis-5
+  chassis_dn: sys/chassis-5
+- chassis_profile_name: Swift-Chassis-6
+  chassis_dn: sys/chassis-6
+  # set wait_for_associate on any chassis where the task needs to wait
+  # when associating many chassis you may only want to wait on certain chassis (not all)
+  wait_for_associate: no
+

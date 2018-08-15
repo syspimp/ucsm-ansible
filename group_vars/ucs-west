@@ -1,0 +1,194 @@
+---
+# Variables for the CiscoUcs.ucs role used in dCloud
+#
+# This variables file can be used to override default settings or skip a configuration task (by providing an empty list).
+# Default settings are located in the defaults/main.yml files for each lan/san/storage/servers/etc. role.
+#
+ucs_state: present
+ucs_timezone:
+- timezone: America/New_York
+ucs_ntp:
+- objects:
+  - {
+        "module": "ucsmsdk.mometa.comm.CommNtpProvider",
+        "class": "CommNtpProvider",
+        "properties": {
+            "parent_mo_or_dn": "sys/svc-ext/datetime-svc",
+            "name": "10.55.102.5"
+        }
+    }
+# LAN related settings
+# empty list will skip configuration in dCloud's environment
+#ucs_ip_pools:
+# this is an example ip pool
+ucs_ip_pools:
+- name: ext-mgmt
+  first_addr: 192.168.156.101
+  last_addr: 192.168.156.116
+  subnet_mask: 255.255.255.0
+  default_gw: 192.168.156.1
+
+# empty list will skip configuration in dCloud's environment
+#ucs_port_channels:
+ucs_port_channels:
+- objects:
+  - {
+        "module": "ucsmsdk.mometa.fabric.FabricEthLanPc",
+        "class": "FabricEthLanPc",
+        "properties": {
+            "parent_mo_or_dn": "fabric/lan/A",
+            "admin_speed": "10gbps",
+            "name": "PC-12",
+            "port_id": "12"
+        },
+        "children": [
+            {
+                "module": "ucsmsdk.mometa.fabric.FabricEthLanPcEp",
+                "class": "FabricEthLanPcEp",
+                "properties": {
+                    "name": "",
+                    "port_id": "31",
+                    "slot_id": "1"
+                },
+            },
+            {
+                "module": "ucsmsdk.mometa.fabric.FabricEthLanPcEp",
+                "class": "FabricEthLanPcEp",
+                "properties": {
+                    "name": "",
+                    "port_id": "32",
+                    "slot_id": "1"
+                },
+            },
+        ]
+    }
+- objects:
+  - {
+        "module": "ucsmsdk.mometa.fabric.FabricEthLanPc",
+        "class": "FabricEthLanPc",
+        "properties": {
+            "parent_mo_or_dn": "fabric/lan/B",
+            "admin_speed": "10gbps",
+            "name": "PC-13",
+            "port_id": "13"
+        },
+        "children": [
+            {
+                "module": "ucsmsdk.mometa.fabric.FabricEthLanPcEp",
+                "class": "FabricEthLanPcEp",
+                "properties": {
+                    "name": "",
+                    "port_id": "31",
+                    "slot_id": "1"
+                },
+            },
+            {
+                "module": "ucsmsdk.mometa.fabric.FabricEthLanPcEp",
+                "class": "FabricEthLanPcEp",
+                "properties": {
+                    "name": "",
+                    "port_id": "32",
+                    "slot_id": "1"
+                },
+            },
+        ]
+    }
+
+ucs_vlans:
+# only using VLAN 10 in dCloud
+- name: UCS_Data_103
+  id: '103'
+ucs_vnic_templates:
+# adjust vNIC templates and LAN connectivity policy for dCloud (single vNIC)
+- name: Cntr-Template
+  fabric: A-B
+  template_type: updating-template
+  mac_pool: MAC-Pool-A
+  network_control_policy: Enable-CDP-LLDP
+  vlans_list:
+  - name: UCS_Data_103
+    native: 'yes'
+ucs_lan_connectivity_policies:
+- name: Cntr-FC-Boot
+  vnic_list:
+  - name: vNIC-Management
+    vnic_template: Cntr-Template
+    adapter_policy: Linux
+
+# SAN related settings (SAN not used in dCloud)
+ucs_wwnn_pools:
+- name: WWNN-Pool
+  order: sequential
+  purpose: node
+  first_addr: 20:00:00:25:B5:48:00:00
+  last_addr: 20:00:00:25:B5:48:00:0F
+
+ucs_wwpn_pools:
+- name: WWPN-Pool-A
+  order: sequential
+  purpose: port
+  first_addr: 20:00:00:25:B5:48:0A:00
+  last_addr: 20:00:00:25:B5:48:0A:0F
+- name: WWPN-Pool-B
+  order: sequential
+  purpose: port
+  first_addr: 20:00:00:25:B5:48:0B:00
+  last_addr: 20:00:00:25:B5:48:0B:0F
+
+ucs_vsans:
+# empty list will skip configuration in dCloud's environment
+
+ucs_vhba_templates:
+- name: vHBA-Template-A
+  fabric: A
+  vsan: VSAN-A
+  wwpn_pool: WWPN-Pool-A
+- name: vHBA-Template-B
+  fabric: B
+  vsan: VSAN-B
+  wwpn_pool: WWPN-Pool-B
+
+ucs_san_connectivity_policies:
+# empty list will skip configuration in dCloud's environment
+
+# Storage settings (no used in dCloud)
+ucs_storage_profiles:
+# empty list will skip configuration in dCloud's environment
+ucs_disk_group_policies:
+# empty list will skip configuration in dCloud's environment
+ucs_manual_disk_groups:
+# empty list will skip configuration in dCloud's environment
+ucs_local_luns:
+# empty list will skip configuration in dCloud's environment
+
+# Servers settings
+ucs_boot_policies:
+# empty list will skip configuration in dCloud's environment
+ucs_host_firmware_packages:
+# empty list will skip configuration in dCloud's environment
+ucs_service_profile_templates:
+# use dCloud's existing boot policy and server pool
+- name: DEE-Ctrl
+  template_type: updating-template
+  uuid_pool: UUID-Pool
+  lan_connectivity_policy: Cntr-FC-Boot
+  boot_policy: Razor_Boot
+  maintenance_policy: User_Ack_Policy
+  server_pool: General-Server_Pool
+  bios_policy: Docker
+- name: DEE-DTR
+  template_type: updating-template
+  uuid_pool: UUID-Pool
+  lan_connectivity_policy: Cntr-FC-Boot
+  boot_policy: Razor_Boot
+  maintenance_policy: User_Ack_Policy
+  server_pool: General-Server_Pool
+  bios_policy: Docker
+- name: DEE-Wrk
+  template_type: updating-template
+  uuid_pool: UUID-Pool
+  lan_connectivity_policy: Cntr-FC-Boot
+  boot_policy: Razor_Boot
+  maintenance_policy: User_Ack_Policy
+  server_pool: General-Server_Pool
+  bios_policy: Docker
