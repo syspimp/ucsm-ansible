@@ -1,0 +1,44 @@
+---
+# defaults file for CiscoUcs.ucs/servers/boot_policies
+# Default values are based on the FlexPod Datacenter with Docker EE Cisco Validated Design (CVD).
+# The CVD is available at https://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/UCS_CVDs/flexpod_docker_deploy_design.html.
+ucs_vmedia_policies:
+- objects:
+  - {
+        "module": "ucsmsdk.mometa.cimcvmedia.CimcvmediaMountConfigPolicy",
+        "class": "CimcvmediaMountConfigPolicy",
+        "properties": {
+            "name": "kube",
+            "retry_on_mount_fail": "yes",
+            "parent_mo_or_dn": "org-root",
+            "policy_owner": "local",
+            "descr": "Kubernetes Boot Media"
+        },
+        "children": [
+            {
+                "module": "ucsmsdk.mometa.cimcvmedia.CimcvmediaConfigMountEntry",
+                "class": "CimcvmediaConfigMountEntry",
+                "properties": {
+                    "mapping_name": "CentOS7",
+                    "device_type": "cdd",
+                    "mount_protocol": "http",
+                    "remote_ip_address": "10.55.103.208",
+                    "image_name_variable": "none",
+                    "image_file_name": "foreman-discovery-image-3.4.4-1.iso",
+                    "image_path": "pub"
+                }
+            },
+            {
+                "module": "ucsmsdk.mometa.cimcvmedia.CimcvmediaConfigMountEntry",
+                "class": "CimcvmediaConfigMountEntry",
+                "properties": {
+                    "mapping_name": "kickstartImage",
+                    "device_type": "hdd",
+                    "mount_protocol": "http",
+                    "remote_ip_address": "10.55.103.208",
+                    "image_name_variable": "service-profile-name",
+                    "image_path": "pub"
+                }
+            }
+        ]
+    }

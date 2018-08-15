@@ -1,16 +1,16 @@
 [ucs-east]
-ucs12 ucs_hostname=10.55.105.202
+ucs2 ucs_hostname=10.55.105.203
+ucs3 ucs_hostname=10.55.105.207
 ucs9 ucs_hostname=10.55.105.205
-ucs409 ucs_hostname=10.55.105.210
 
 [ucs-east:vars]
 ucs_username=ucspe 
 ucs_password=ucspe
 
 [ucs-west]
-ucs2 ucs_hostname=10.55.105.203
-ucs3 ucs_hostname=10.55.105.207
+ucs12 ucs_hostname=10.55.105.202
 ucs13 ucs_hostname=10.55.105.201
+ucs409 ucs_hostname=10.55.105.210
 
 [ucs-all:children]
 ucs-east

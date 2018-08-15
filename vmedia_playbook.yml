@@ -1,0 +1,7 @@
+---
+- hosts: ucs-west
+  connection: local
+  gather_facts: no
+  tasks:
+  - include_role:
+      name: "CiscoUcs.ucs/servers/vmedia_policies"

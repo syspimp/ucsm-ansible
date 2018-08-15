@@ -6,7 +6,7 @@
 #
 ucs_state: present
 ucs_timezone:
-- timezone: America/New_York
+- timezone: America/Los_Angeles
 ucs_ntp:
 - objects:
   - {
@@ -135,8 +135,6 @@ ucs_wwpn_pools:
   first_addr: 20:00:00:25:B5:48:0B:00
   last_addr: 20:00:00:25:B5:48:0B:0F
 
-ucs_vsans:
-# empty list will skip configuration in dCloud's environment
 
 ucs_vhba_templates:
 - name: vHBA-Template-A
@@ -148,24 +146,74 @@ ucs_vhba_templates:
   vsan: VSAN-B
   wwpn_pool: WWPN-Pool-B
 
-ucs_san_connectivity_policies:
-# empty list will skip configuration in dCloud's environment
-
-# Storage settings (no used in dCloud)
-ucs_storage_profiles:
-# empty list will skip configuration in dCloud's environment
-ucs_disk_group_policies:
-# empty list will skip configuration in dCloud's environment
-ucs_manual_disk_groups:
-# empty list will skip configuration in dCloud's environment
-ucs_local_luns:
-# empty list will skip configuration in dCloud's environment
 
 # Servers settings
 ucs_boot_policies:
-# empty list will skip configuration in dCloud's environment
-ucs_host_firmware_packages:
-# empty list will skip configuration in dCloud's environment
+- objects:
+  - {
+        "module": "ucsmsdk.mometa.lsboot.LsbootPolicy",
+        "class": "LsbootPolicy",
+        "properties": {
+            "parent_mo_or_dn": "org-root",
+            "boot_mode": "legacy",
+            "enforce_vnic_name": "yes",
+            "name": "DEE-vMedia",
+            "reboot_on_update": "no"
+        },
+        "children": [
+            {
+                "module": "ucsmsdk.mometa.lsboot.LsbootVirtualMedia",
+                "class": "LsbootVirtualMedia",
+                "properties": {
+                    "access": "read-write-remote-cimc",
+                    "lun_id": "0",
+                    "order": "3"
+                }
+            },
+            {
+                "module": "ucsmsdk.mometa.lsboot.LsbootVirtualMedia",
+                "class": "LsbootVirtualMedia",
+                "properties": {
+                    "access": "read-only-remote-cimc",
+                    "lun_id": "0",
+                    "order": "2"
+                }
+            },
+            {
+                "module": "ucsmsdk.mometa.lsboot.LsbootStorage",
+                "class": "LsbootStorage",
+                "properties": {
+                    "order": "1"
+                },
+                "children": [
+                    {
+                        "module": "ucsmsdk.mometa.lsboot.LsbootLocalStorage",
+                        "class": "LsbootLocalStorage",
+                        "properties": {},
+                        "children": [
+                            {
+                                "module": "ucsmsdk.mometa.lsboot.LsbootLocalHddImage",
+                                "class": "LsbootLocalHddImage",
+                                "properties": {
+                                    "order": "1",
+                                },
+                                "children": [
+                                    {
+                                        "module": "ucsmsdk.mometa.lsboot.LsbootLocalLunImagePath",
+                                        "class": "LsbootLocalLunImagePath",
+                                        "properties": {
+                                            "lun_name": "Boot-LUN",
+                                            "type": "primary"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
 ucs_service_profile_templates:
 # use dCloud's existing boot policy and server pool
 - name: DEE-Ctrl
@@ -192,3 +240,44 @@ ucs_service_profile_templates:
   maintenance_policy: User_Ack_Policy
   server_pool: General-Server_Pool
   bios_policy: Docker
+ucs_vmedia_policies:
+- objects:
+  - {
+        "module": "ucsmsdk.mometa.cimcvmedia.CimcvmediaMountConfigPolicy",
+        "class": "CimcvmediaMountConfigPolicy",
+        "properties": {
+            "name": "kube",
+            "retry_on_mount_fail": "yes",
+            "parent_mo_or_dn": "org-root",
+            "policy_owner": "local",
+            "descr": "Kubernetes Boot Media"
+        },
+        "children": [
+            {
+                "module": "ucsmsdk.mometa.cimcvmedia.CimcvmediaConfigMountEntry",
+                "class": "CimcvmediaConfigMountEntry",
+                "properties": {
+                    "mapping_name": "ForemanImg",
+                    "device_type": "cdd",
+                    "mount_protocol": "http",
+                    "remote_ip_address": "10.55.103.208",
+                    "image_name_variable": "none",
+                    "image_file_name": "foreman-discovery-image-3.4.4-1.iso",
+                    "image_path": "pub"
+                }
+            },
+            {
+                "module": "ucsmsdk.mometa.cimcvmedia.CimcvmediaConfigMountEntry",
+                "class": "CimcvmediaConfigMountEntry",
+                "properties": {
+                    "mapping_name": "kickstartImage",
+                    "device_type": "hdd",
+                    "mount_protocol": "http",
+                    "remote_ip_address": "10.55.103.208",
+                    "image_name_variable": "service-profile-name",
+                    "image_path": "pub"
+                }
+            }
+        ]
+    }
+

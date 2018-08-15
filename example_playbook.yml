@@ -6,31 +6,8 @@
   - include_role:
       name: "CiscoUcs.ucs"
 
-# Example Playbook: VLAN configuration using the [ucs] hosts group
-- hosts: ucs-all
-  connection: local
-  gather_facts: no
-  tasks:
-  - name: Configure VLAN
-    ucs_vlans:
-      hostname: "{{ ucs_hostname }}"
-      username: "{{ ucs_username }}"
-      password: "{{ ucs_password }}"
-      state: "{{ ucs_state }}"
-      name: "{{ item.name }}"
-      id: "{{ item.id }}"
-      native: 'no'
-    with_items: "{{ ucs_vlans }}"
-
-#- hosts: ucs-west
-#  connection: local
-#  gather_facts: no
-#  tasks:
-#  - include_role:
-#      name: "ciscoucs.ucs"
-
-# Example Playbook: VLAN configuration using the [ucs] hosts group
-#- hosts: ucs-east
+## Example Playbook: VLAN configuration using the [ucs] hosts group
+#- hosts: ucs-all
 #  connection: local
 #  gather_facts: no
 #  tasks:
@@ -44,3 +21,5 @@
 #      id: "{{ item.id }}"
 #      native: 'no'
 #    with_items: "{{ ucs_vlans }}"
+
+
